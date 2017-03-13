@@ -96,20 +96,20 @@ func FormatResutl(result interface{}, i int) {
 				if reflect.ValueOf(vv).Kind() == reflect.Map {
 
 					WriteString(func(){
-						buf.WriteString(fmt.Sprintf("   \"%s\" => \r\n", k))
+						buf.WriteString(fmt.Sprintf("   '%s' => \r\n", k))
 					}, i)
 					FormatResutl(vv, i + 1)
 
 				}else if reflect.ValueOf(vv).Kind() == reflect.String {
 
 					WriteString(func(){
-						buf.WriteString(fmt.Sprintf("   \"%s\" => \"%s\",\r\n", k, vv))
+						buf.WriteString(fmt.Sprintf("   '%s' => '%s',\r\n", k, vv))
 					}, i)
 
 				} else {
 
 					WriteString(func(){
-						buf.WriteString(fmt.Sprintf("  \"%s\" => %s,\r\n", k, vv))
+						buf.WriteString(fmt.Sprintf("  '%s' => %s,\r\n", k, vv))
 					}, i)
 
 				}
