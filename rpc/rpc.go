@@ -10,9 +10,14 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"reflect"
+	"bytes"
 )
 
-func DebugStart(url string, fn string, args []string){
+var buf bytes.Buffer
+
+const ENPTY_NUM = 6
+
+func DebugStart(url string, fn string, format bool, args []string){
 	client, err := client.NewClient(url)
 
 	if err != nil {
@@ -64,34 +69,72 @@ func DebugStart(url string, fn string, args []string){
 	}
 	elapsed := time.Since(t1)
 
-
-	//FormatResutl(ret)
-	fmt.Println("result:", ret)
+	if format == true {
+		FormatResutl(ret, 1)
+		fmt.Println("result:\r\n", strings.Replace(buf.String(), " ", "", 0))
+	}else{
+		fmt.Println("result:", ret)
+	}
 	fmt.Println("runtime: ", elapsed)
-
 }
 
+/**
+@param interface{} result 需要格式化的数据
+@param int i 层级 默认 0
+ */
+func FormatResutl(result interface{}, i int) {
 
-func FormatResutl(result interface{}) interface{} {
 	if reflect.ValueOf(result).Kind() == reflect.Map {
 
+		WriteString(func(){
+			buf.WriteString("[\n")
+		}, i)
+
 		switch resultValue := result.(type){
-		case map[string]string:
-			fmt.Println("it's a map, and key \"key\" is", resultValue)
 		case map[string]interface{}:
 			for k, vv := range resultValue{
-				fmt.Println(k, "==>", vv)
+				if reflect.ValueOf(vv).Kind() == reflect.Map {
+
+					WriteString(func(){
+						buf.WriteString(fmt.Sprintf("   \"%s\" => \r\n", k))
+					}, i)
+					FormatResutl(vv, i + 1)
+
+				}else if reflect.ValueOf(vv).Kind() == reflect.String {
+
+					WriteString(func(){
+						buf.WriteString(fmt.Sprintf("   \"%s\" => \"%s\",\r\n", k, vv))
+					}, i)
+
+				} else {
+
+					WriteString(func(){
+						buf.WriteString(fmt.Sprintf("  \"%s\" => %s,\r\n", k, vv))
+					}, i)
+
+				}
 			}
-			fmt.Println("it's a map, and key \"key\" is", resultValue)
 		default:
 			fmt.Println("unknown type", resultValue)
 		}
-
+		if i == 1 {
+			WriteString(func() {
+				buf.WriteString(" ],\r\n")
+			}, i)
+		}else {
+			WriteString(func() {
+				buf.WriteString("],\r\n")
+			}, i)
+		}
 	}else{
-		//return result
+		buf.WriteString(result.(string))
 	}
+}
 
-	return 123
+
+func WriteString(fn func(), i int){
+	buf.WriteString(strings.Repeat(" ", (i - 1) * ENPTY_NUM))
+	fn()
 }
 
 /**

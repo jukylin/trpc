@@ -26,6 +26,7 @@ import (
 
 var url string
 var fn string
+var fm bool
 var args []string
 
 // RootCmd represents the base command when called without any subcommands
@@ -56,7 +57,7 @@ var RootCmd = &cobra.Command{
 			cmd.Help()
 			return
 		}
-		rpc.DebugStart(url, fn, args)
+		rpc.DebugStart(url, fn, fm, args)
 	},
 }
 
@@ -81,7 +82,8 @@ func init() {
 	// when this action is called directly.
 	//RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	RootCmd.Flags().StringVarP(&url, "url", "u", "", "请求地址")
-	RootCmd.Flags().StringVarP(&fn, "fn", "f", "", "调用的函数")
+	RootCmd.Flags().StringVarP(&fn, "func", "f", "", "调用的函数")
+	RootCmd.Flags().BoolVarP(&fm, "format", "m", false, "是否格式化结果")
 	RootCmd.Flags().StringArrayVarP(&args, "args", "a", []string{}, "函数参数，按顺序传")
 }
 
