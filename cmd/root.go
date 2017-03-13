@@ -47,7 +47,7 @@ var RootCmd = &cobra.Command{
     result: 5
     runtime:  98.39678ms
 说明：
-    参数按照函数参数传递，如果为数据，上例第三个"$c"，
+    参数按照函数参数传递，如果为数组，上例第三个"$c"，
 需要把数组json化后放入"localfile.json"，再执行命令。
 `,
 // Uncomment the following line if your bare application
