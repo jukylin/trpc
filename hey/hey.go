@@ -22,7 +22,6 @@ import (
 	gourl "net/url"
 	"os"
 	"regexp"
-	"runtime"
 	"strings"
 
 	"github.com/rakyll/hey/requester"
@@ -67,70 +66,6 @@ func (h *headerSlice) Set(value string) error {
 	return nil
 }
 
-var (
-	headerslice headerSlice
-	m           = flag.String("m", "GET", "")
-	headers     = flag.String("h", "", "")
-	body        = flag.String("d", "", "")
-	bodyFile    = flag.String("D", "", "")
-	accept      = flag.String("A", "", "")
-	contentType = flag.String("T", "text/html", "")
-	authHeader  = flag.String("a", "", "")
-	hostHeader  = flag.String("host", "", "")
-
-	output = flag.String("o", "", "")
-
-	c = flag.Int("c", 50, "")
-	n = flag.Int("n", 200, "")
-	q = flag.Int("q", 0, "")
-	t = flag.Int("t", 20, "")
-
-	h2 = flag.Bool("h2", false, "")
-
-	cpus = flag.Int("cpus", runtime.GOMAXPROCS(-1), "")
-
-	disableCompression = flag.Bool("disable-compression", false, "")
-	disableKeepAlives  = flag.Bool("disable-keepalive", true, "")
-	proxyAddr          = flag.String("x", "", "")
-
-	enableTrace = flag.Bool("more", false, "")
-)
-
-var usage = `Usage: hey [options...] <url>
-
-Options:
-  -n  Number of requests to run. Default is 200.
-  -c  Number of requests to run concurrently. Total number of requests cannot
-      be smaller than the concurrency level. Default is 50.
-  -q  Rate limit, in seconds (QPS).
-  -o  Output type. If none provided, a summary is printed.
-      "csv" is the only supported alternative. Dumps the response
-      metrics in comma-separated values format.
-
-  -m  HTTP method, one of GET, POST, PUT, DELETE, HEAD, OPTIONS.
-  -H  Custom HTTP header. You can specify as many as needed by repeating the flag.
-      For example, -H "Accept: text/html" -H "Content-Type: application/xml" .
-  -t  Timeout for each request in seconds. Default is 20, use 0 for infinite.
-  -A  HTTP Accept header.
-  -d  HTTP request body.
-  -D  HTTP request body from file. For example, /home/user/file.txt or ./file.txt.
-  -T  Content-type, defaults to "text/html".
-  -a  Basic authentication, username:password.
-  -x  HTTP Proxy address as host:port.
-  -h2 Enable HTTP/2.
-
-  -host	HTTP Host header.
-
-  -disable-compression  Disable compression.
-  -disable-keepalive    Disable keep-alive, prevents re-use of TCP
-                        connections between different HTTP requests.
-  -cpus                 Number of used cpu cores.
-                        (default for current machine is %d cores)
-  -more                 Provides information on DNS lookup, dialup, request and
-                        response timings.
-`
-
-
 
 func (this *Hey)RunHey() {
 	//flag.Usage = func() {
@@ -172,13 +107,13 @@ func (this *Hey)RunHey() {
 		usageAndExit("Flag '-h' is deprecated, please use '-H' instead.")
 	}
 	// set any other additional repeatable headers
-	for _, h := range headerslice {
-		match, err := parseInputWithRegexp(h, headerRegexp)
-		if err != nil {
-			usageAndExit(err.Error())
-		}
-		header.Set(match[1], match[2])
-	}
+	//for _, h := range headerslice {
+	//	match, err := parseInputWithRegexp(h, headerRegexp)
+	//	if err != nil {
+	//		usageAndExit(err.Error())
+	//	}
+	//	header.Set(match[1], match[2])
+	//}
 
 	if this.Accept != "" {
 		header.Set("Accept", this.Accept)
@@ -198,13 +133,6 @@ func (this *Hey)RunHey() {
 	if this.Body != "" {
 		bodyAll = []byte(this.Body)
 	}
-	//if *bodyFile != "" {
-	//	slurp, err := ioutil.ReadFile(*bodyFile)
-	//	if err != nil {
-	//		errAndExit(err.Error())
-	//	}
-	//	bodyAll = slurp
-	//}
 
 	if this.Output != "csv" && this.Output != "" {
 		usageAndExit("Invalid output type; only csv is supported.")
@@ -235,7 +163,6 @@ func (this *Hey)RunHey() {
 	}
 
 	this.DisableKeepAlives = true
-
 	(&requester.Work{
 		Request:            req,
 		RequestBody:        bodyAll,
