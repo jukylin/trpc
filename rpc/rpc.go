@@ -80,7 +80,6 @@ func DebugStart(url string, fn string, format bool, bench bool,nrun int, ncon in
 		hey.Con = ncon
 		hey.Body = client.PackBody
 		hey.ContentType = "application/json"
-		//fmt.Println(hey)
 		hey.RunHey()
 	}else {
 
