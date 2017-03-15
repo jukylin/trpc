@@ -27,7 +27,7 @@ $ mv trpc /usr/local/bin/trpc
 
 ## 执行：
 ```
-$ derpc -u http://www.test.com -f test -a 1 -a 4 -a arrfile:localfile.json
+$ trpc -u http://www.test.com -f test -a 1 -a 4 -a arrfile:localfile.json
 ```
 
 ## 返回：
