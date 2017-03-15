@@ -61,6 +61,7 @@ var RootCmd = &cobra.Command{
 			cmd.Help()
 			return
 		}
+
 		rpc.DebugStart(url, fn, fm, bench, Nrun, Ncon, args)
 	},
 }

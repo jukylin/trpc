@@ -46,7 +46,7 @@ func DebugStart(url string, fn string, format bool, bench bool,nrun int, ncon in
 	s := make([]interface{}, len(args))
 	for i, v := range args {
 		//解析数组
-		if strings.Contains(strings.ToLower(v), "array:") {
+		if strings.Contains(strings.ToLower(v), "arrfile:") {
 			tmp := strings.Split(v, ":")
 			jsonData, err := ReadJson(tmp[1])
 			if err != nil {
@@ -61,7 +61,18 @@ func DebugStart(url string, fn string, format bool, bench bool,nrun int, ncon in
 				return
 			}
 			s[i] = m
-		} else {
+		}else if strings.Contains(strings.ToLower(v), "arr:"){
+			replaceStr := strings.Replace(v, "arr:", "", 1)
+			replaceStr = strings.Trim(replaceStr, "#")
+			splitStr := strings.Split(replaceStr, "#")
+			arrMap := make(map[string]string,len(splitStr))
+			for _, spV := range splitStr {
+				spspV := strings.Split(spV, "=")
+				arrMap[spspV[0]] = spspV[1]
+			}
+
+			s[i] = arrMap
+		}else {
 			s[i] = v
 		}
 	}

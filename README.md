@@ -27,7 +27,7 @@ $ mv trpc /usr/local/bin/trpc
 
 ## 执行：
 ```
-$ derpc -u http://www.test.com -f test -a 1 -a 4 -a array:localfile.json
+$ derpc -u http://www.test.com -f test -a 1 -a 4 -a arrfile:localfile.json
 ```
 
 ## 返回：
@@ -36,5 +36,8 @@ $ derpc -u http://www.test.com -f test -a 1 -a 4 -a array:localfile.json
     
 ## 注意：
 
-参数按照函数参数传递，如果为数组，上例第三个"$c"，
-需要把数组json化后放入"localfile.json"，再执行命令。
+参数按照函数参数顺序传递，如果为数组提供2种传递方式：
+* 1：-a arr:name=trpc#age=20，通过"#"把key=>val连接起来，
+组成["name"=>"trpc","age" => 20]；
+* 2：-a arrfile:./localfile.json，对于传递复杂的数组，
+需要把数组json化后，放入"./localfile.json"，再执行命令。
