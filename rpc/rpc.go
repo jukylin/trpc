@@ -11,13 +11,15 @@ import (
 	"encoding/json"
 	"reflect"
 	"bytes"
+
+	"trpc/hey"
 )
 
 var buf bytes.Buffer
 
 const ENPTY_NUM = 6
 
-func DebugStart(url string, fn string, format bool, args []string){
+func DebugStart(url string, fn string, format bool, bench bool,nrun int, ncon int, args []string){
 	client, err := client.NewClient(url)
 
 	if err != nil {
@@ -34,6 +36,8 @@ func DebugStart(url string, fn string, format bool, args []string){
 	client.Opt.EncryptPrivateKey = ""
 	//这是默认值
 	client.Opt.MagicNumber = yar.MagicNumber
+
+	client.IsBenchClient = bench
 
 	var ret interface{}
 
@@ -62,20 +66,34 @@ func DebugStart(url string, fn string, format bool, args []string){
 		}
 	}
 
-	callErr := client.Call(fn, &ret, s...)
+	callErr := client.Call(fn, &ret,s...)
 
 	if callErr != nil {
 		fmt.Println("error", callErr)
 	}
-	elapsed := time.Since(t1)
 
-	if format == true {
-		FormatResutl(ret, 1)
-		fmt.Println("result:\r\n", strings.Replace(buf.String(), " ", "", 0))
-	}else{
-		fmt.Println("result:", ret)
+	if bench {
+		hey := new(hey.Hey)
+		hey.Url = url
+		hey.Method = "post"
+		hey.Num = nrun
+		hey.Con = ncon
+		hey.Body = client.PackBody
+		hey.ContentType = "application/json"
+		//fmt.Println(hey)
+		hey.RunHey()
+	}else {
+
+		elapsed := time.Since(t1)
+
+		if format == true {
+			FormatResutl(ret, 1)
+			fmt.Println("result:\r\n", strings.Replace(buf.String(), " ", "", 0))
+		} else {
+			fmt.Println("result:", ret)
+		}
+		fmt.Println("runtime: ", elapsed)
 	}
-	fmt.Println("runtime: ", elapsed)
 }
 
 /**

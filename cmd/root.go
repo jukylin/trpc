@@ -28,6 +28,10 @@ var url string
 var fn string
 var fm bool
 var args []string
+var bench bool
+var Nrun int
+var Ncon int
+
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -57,7 +61,7 @@ var RootCmd = &cobra.Command{
 			cmd.Help()
 			return
 		}
-		rpc.DebugStart(url, fn, fm, args)
+		rpc.DebugStart(url, fn, fm, bench, Nrun, Ncon, args)
 	},
 }
 
@@ -83,7 +87,10 @@ func init() {
 	//RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	RootCmd.Flags().StringVarP(&url, "url", "u", "", "请求地址")
 	RootCmd.Flags().StringVarP(&fn, "func", "f", "", "调用的函数")
-	RootCmd.Flags().BoolVarP(&fm, "format", "m", false, "是否格式化结果")
+	RootCmd.Flags().BoolVarP(&fm, "format", "m", false, "是否格式化结果，主要针对数组")
+	RootCmd.Flags().BoolVarP(&bench, "bench", "b", false, "进行压力测试")
+	RootCmd.Flags().IntVarP(&Nrun, "Nrun", "n", 200, "总的请求数，默认200")
+	RootCmd.Flags().IntVarP(&Ncon, "Ncon", "c", 50, "总的压力数，不能低于总的请求数，默认50")
 	RootCmd.Flags().StringArrayVarP(&args, "args", "a", []string{}, "函数参数，按顺序传")
 }
 

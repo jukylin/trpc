@@ -21,6 +21,8 @@ type Client struct {
 	net       string
 	transport transports.Transport
 	Opt       *yar.Opt
+	PackBody string
+	IsBenchClient bool
 }
 
 // 获取一个YAR 客户端
@@ -191,6 +193,12 @@ func (client *Client) httpHandler(method string, ret interface{}, params ...inte
 
 	postBuffer := bytes.NewBuffer(r.Protocol.Bytes().Bytes())
 	postBuffer.Write(packBody)
+
+	client.PackBody = postBuffer.String()
+
+	if client.IsBenchClient {
+		return nil
+	}
 
 	//todo 停止验证HTTPS请求
 	tr := &http.Transport{
