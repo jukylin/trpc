@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"reflect"
 	"bytes"
-
 	"trpc/hey"
 )
 
@@ -98,11 +97,11 @@ func DebugStart(url string, fn string, format bool, bench bool,nrun int, ncon in
 
 		if format == true {
 			FormatResutl(ret, 1)
-			fmt.Println("result:\r\n", strings.Replace(buf.String(), " ", "", 0))
+			fmt.Println("result:\r\n", buf.String())
 		} else {
 			fmt.Println("result:", ret)
 		}
-		fmt.Println("runtime: ", elapsed)
+		fmt.Println("runtime:\r\n      ", elapsed)
 	}
 }
 
@@ -155,7 +154,7 @@ func FormatResutl(result interface{}, i int) {
 			}, i)
 		}
 	}else{
-		buf.WriteString(result.(string))
+		buf.WriteString(fmt.Sprintf("      %s", result))
 	}
 }
 
