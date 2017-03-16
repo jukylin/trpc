@@ -4,8 +4,8 @@ package yar
 type Response struct {
 	Protocol *Header     `json:"-" msgpack:"-"`
 	Id       uint32      `json:"i" msgpack:"i"`
-	Error    string
-	OError   map[string]interface{} `json:"e"`
+	Error    interface{}		 `json:"e" msgpack:"e"`
+	//OError   map[string]interface{} `json:"e"`
 	Out      string      `json:"o" msgpack:"o"`
 	Status   ErrorType   `json:"s" msgpack:"s"`
 	Retval   interface{} `json:"r" msgpack:"r"`

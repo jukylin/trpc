@@ -14,6 +14,7 @@ import (
 	yar "github.com/weixinhost/yar.go"
 	"github.com/weixinhost/yar.go/packager"
 	"github.com/weixinhost/yar.go/transports"
+	"fmt"
 )
 
 type Client struct {
@@ -145,17 +146,20 @@ func (client *Client) readResponse(reader io.Reader, ret interface{}) *yar.Error
 	if err != nil {
 		return yar.NewError(yar.ErrorPackager, "Unpack Error:"+err.Error())
 	}
-
+	
+	// exception 当作正常返回解析
 	if response.Status != yar.ERR_OKEY && response.Status != yar.ERR_EXCEPTION{
-		return yar.NewError(yar.ErrorResponse, response.Error)
+		return yar.NewError(yar.ErrorResponse, response.Error.(string))
 	}
 
-	if ret != nil {
+	if ret != nil || response.Status == yar.ERR_EXCEPTION{
 
 		var responseData interface{}
 		if response.Status == yar.ERR_EXCEPTION {
-			responseData = response.OError
-		} else {
+			responseData = response.Error
+		} else if response.Out != "" {
+			responseData = response.Out
+		}else {
 			responseData = response.Retval
 		}
 
