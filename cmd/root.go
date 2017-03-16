@@ -38,21 +38,7 @@ var RootCmd = &cobra.Command{
 	Use:   "trpc",
 	Short: "RPC 调试工具",
 	Long: `RPC 调试工具，用于调试远程RPC接口，暂只支持yar和HTTP协议
-<php>
-    URL : http://www.test.com
-    public function test($a, $b, $c = []){
-        file_put_content("./log.log", json_encode($c));
-        return $a + $b;
-    }
-</php>
-执行：
-    derpc -u http://www.test.com -f test -a 1 -a 4 -a array:localfile.json
-返回：
-    result: 5
-    runtime:  98.39678ms
-说明：
-    参数按照函数参数传递，如果为数组，上例第三个"$c"，
-需要把数组json化后放入"localfile.json"，再执行命令。
+trpc -u URL -f function -a param1 -a param2
 `,
 // Uncomment the following line if your bare application
 // has an action associated with it:
@@ -89,7 +75,8 @@ func init() {
 	RootCmd.Flags().StringVarP(&url, "url", "u", "", "请求地址")
 	RootCmd.Flags().StringVarP(&fn, "func", "f", "", "调用的函数")
 	RootCmd.Flags().BoolVarP(&fm, "format", "m", false, "是否格式化结果，主要针对数组")
-	RootCmd.Flags().BoolVarP(&bench, "bench", "b", false, "进行压力测试")
+	RootCmd.Flags().BoolVarP(&bench, "bench", "b", false, "进行压力测试，测试工具使用" +
+		"【https://github.com/rakyll/hey，使用go重写的ab压力测试工具】。")
 	RootCmd.Flags().IntVarP(&Nrun, "Nrun", "n", 200, "总的请求数，默认200")
 	RootCmd.Flags().IntVarP(&Ncon, "Ncon", "c", 50, "总的压力数，不能低于总的请求数，默认50")
 	RootCmd.Flags().StringArrayVarP(&args, "args", "a", []string{}, "函数参数，按顺序传")
