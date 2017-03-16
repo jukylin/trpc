@@ -10,7 +10,7 @@ $ go get github.com/tools/godep
 ```
 * 下载 trpc
 ```
-$ git clone git@github.com:Aqiling/trpc.git
+$ git clone git@gitlab.etcchebao.cn:go_service/trpc.git
 $ cd trpc
 $ godep go build .
 $ mv trpc /usr/local/bin/trpc
