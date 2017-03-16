@@ -96,12 +96,16 @@ func DebugStart(url string, fn string, format bool, bench bool,nrun int, ncon in
 		elapsed := time.Since(t1)
 
 		if format == true {
-			FormatResutl(ret, 1)
-			fmt.Println("result:\r\n", buf.String())
+			is_map := FormatResutl(ret, 1)
+			if is_map == true {
+				fmt.Println("result:\r\n", buf.String())
+			}else{
+				fmt.Println("result:", buf.String())
+			}
 		} else {
 			fmt.Println("result:", ret)
 		}
-		fmt.Println("runtime:\r\n      ", elapsed)
+		fmt.Println("runtime: ", elapsed)
 	}
 }
 
@@ -109,9 +113,12 @@ func DebugStart(url string, fn string, format bool, bench bool,nrun int, ncon in
 @param interface{} result 需要格式化的数据
 @param int i 层级 默认 0
  */
-func FormatResutl(result interface{}, i int) {
+func FormatResutl(result interface{}, i int) bool {
 
+	var is_map bool
 	if reflect.ValueOf(result).Kind() == reflect.Map {
+
+		is_map = true
 
 		WriteString(func(){
 			buf.WriteString("[\n")
@@ -154,8 +161,12 @@ func FormatResutl(result interface{}, i int) {
 			}, i)
 		}
 	}else{
-		buf.WriteString(fmt.Sprintf("      %s", result))
+		is_map = false
+		buf.WriteString(fmt.Sprintf("%s", result))
 	}
+
+
+	return is_map
 }
 
 
