@@ -41,3 +41,23 @@ $ trpc -u http://www.test.com -f test -a 1 -a 4 -a arrfile:localfile.json
 组成["name"=>"trpc","age" => 20]。
 * 2：-a arrfile:./localfile.json，对于传递复杂的数组，
 需要把数组json化后，放入"./localfile.json"，再执行命令。
+
+## 压力测试 [-b]
+测试使用[hey](https://github.com/rakyll/hey)，一款用go重写的ab压力测试工具。
+
+
+## 格式化返回结果 [-m]
+接口返回的结果是数组，map，使用go直接输出，对开发者不友好。
+
+加上[-m]，可对结果美化：
+```
+ [
+   'code' =>
+      [
+         'age' => '10',
+         'name' => 'test',
+      ],
+   'name' => '1',
+ ],
+
+```

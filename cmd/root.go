@@ -74,7 +74,7 @@ func init() {
 	//RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	RootCmd.Flags().StringVarP(&url, "url", "u", "", "请求地址")
 	RootCmd.Flags().StringVarP(&fn, "func", "f", "", "调用的函数")
-	RootCmd.Flags().BoolVarP(&fm, "format", "m", false, "是否格式化结果，主要针对数组")
+	RootCmd.Flags().BoolVarP(&fm, "format", "m", false, "是否格式化结果，主要针对map，便于使用者查看。")
 	RootCmd.Flags().BoolVarP(&bench, "bench", "b", false, "进行压力测试，测试工具使用" +
 		"【https://github.com/rakyll/hey，使用go重写的ab压力测试工具】。")
 	RootCmd.Flags().IntVarP(&Nrun, "Nrun", "n", 200, "总的请求数，默认200")
