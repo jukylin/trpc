@@ -80,6 +80,7 @@ func DebugStart(url string, fn string, format bool, bench bool,nrun int, ncon in
 
 	if callErr != nil {
 		fmt.Println("error", callErr)
+		return
 	}
 
 	if bench {
