@@ -14,7 +14,6 @@ import (
 	yar "github.com/weixinhost/yar.go"
 	"github.com/weixinhost/yar.go/packager"
 	"github.com/weixinhost/yar.go/transports"
-	"fmt"
 )
 
 type Client struct {
