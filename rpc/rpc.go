@@ -117,7 +117,8 @@ func DebugStart(url string, fn string, format bool, bench bool,nrun int, ncon in
 func FormatResutl(result interface{}, i int) bool {
 
 	var is_map bool
-	if reflect.ValueOf(result).Kind() == reflect.Map {
+	reflectValue := reflect.ValueOf(result)
+	if reflectValue.Kind() == reflect.Map {
 
 		is_map = true
 
@@ -125,33 +126,7 @@ func FormatResutl(result interface{}, i int) bool {
 			buf.WriteString("[\n")
 		}, i)
 
-		switch resultValue := result.(type){
-		case map[string]interface{}:
-			for k, vv := range resultValue{
-				if reflect.ValueOf(vv).Kind() == reflect.Map {
-
-					WriteString(func(){
-						buf.WriteString(fmt.Sprintf("   '%s' => \r\n", k))
-					}, i)
-					FormatResutl(vv, i + 1)
-
-				}else if reflect.ValueOf(vv).Kind() == reflect.String {
-
-					WriteString(func(){
-						buf.WriteString(fmt.Sprintf("   '%s' => '%s',\r\n", k, vv))
-					}, i)
-
-				} else {
-
-					WriteString(func(){
-						buf.WriteString(fmt.Sprintf("  '%s' => %s,\r\n", k, vv))
-					}, i)
-
-				}
-			}
-		default:
-			fmt.Println("unknown type", resultValue)
-		}
+		switchTypeWrite(result, i)
 		if i == 1 {
 			WriteString(func() {
 				buf.WriteString(" ],\r\n")
@@ -160,6 +135,12 @@ func FormatResutl(result interface{}, i int) bool {
 			WriteString(func() {
 				buf.WriteString("],\r\n")
 			}, i)
+		}
+	}else if reflectValue.Kind() == reflect.Slice{
+		len := reflectValue.Len()
+		for ii := 0; ii < len; ii++ {
+			tmp := reflect.ValueOf(result).Index(ii).Interface()
+			switchTypeWrite(tmp, i)
 		}
 	}else{
 		is_map = false
@@ -176,6 +157,7 @@ func WriteString(fn func(), i int){
 	fn()
 }
 
+
 /**
 读取文件json数组
  */
@@ -191,4 +173,50 @@ func ReadJson(path string) (string,error) {
 	}
 
 	return string(fd), nil
+}
+
+
+func switchTypeWrite(switchValue interface{}, i int){
+
+	WriteString(func(){
+		buf.WriteString("[\n")
+	}, i)
+
+	switch resultValue := switchValue.(type){
+	case map[string]interface{}:
+		for k, vv := range resultValue{
+
+			if reflect.ValueOf(vv).Kind() == reflect.Map {
+				WriteString(func(){
+					buf.WriteString(fmt.Sprintf("   '%s' => \r\n", k))
+				}, i)
+				FormatResutl(vv, i + 1)
+
+			}else if reflect.ValueOf(vv).Kind() == reflect.String {
+
+				WriteString(func(){
+					buf.WriteString(fmt.Sprintf("   '%s' => '%s',\r\n", k, vv))
+				}, i)
+
+			}else if reflect.ValueOf(vv).Kind() == reflect.Slice {
+				WriteString(func(){
+					buf.WriteString(fmt.Sprintf("   '%s' => \r\n", k))
+				}, i)
+				FormatResutl(vv, i + 1)
+
+			} else {
+
+				WriteString(func(){
+					buf.WriteString(fmt.Sprintf("  '%s' => %s,\r\n", k, vv))
+				}, i)
+
+			}
+		}
+	default:
+		fmt.Println("unknown type", resultValue1)
+	}
+
+	WriteString(func() {
+		buf.WriteString(" ],\r\n")
+	}, i)
 }
