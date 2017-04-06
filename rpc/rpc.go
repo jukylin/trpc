@@ -18,95 +18,23 @@ var buf bytes.Buffer
 
 const ENPTY_NUM = 6
 
-func DebugStart(url string, fn string, format bool, bench bool,nrun int, ncon int, args []string){
-	client, err := client.NewClient(url)
+type RpcArgs struct {
+	Type string
+	Url string
+	Fn string
+	Format bool
+	Bench bool
+	Nrun int
+	Ncon int
+	Args []string
+}
 
-	if err != nil {
-		fmt.Println("error", err)
-	}
+func DebugStart(args *RpcArgs){
 
-	//这是默认值
-	client.Opt.Timeout = 1000 * 30 //30s
-	//这是默认值
-	client.Opt.Packager = "json"
-	//这是默认值
-	client.Opt.Encrypt = false
-	//这是默认值
-	client.Opt.EncryptPrivateKey = ""
-	//这是默认值
-	client.Opt.MagicNumber = yar.MagicNumber
-
-	client.IsBenchClient = bench
-
-	var ret interface{}
-
-	t1 := time.Now() // get current time
-
-	s := make([]interface{}, len(args))
-	for i, v := range args {
-		//解析数组
-		if strings.Contains(strings.ToLower(v), "arrfile:") {
-			tmp := strings.Split(v, ":")
-			jsonData, err := ReadJson(tmp[1])
-			if err != nil {
-				fmt.Println(err.Error())
-				return
-			}
-
-			b := []byte(jsonData)
-			var m interface{}
-			if err := json.Unmarshal(b, &m); err != nil {
-				fmt.Println(err)
-				return
-			}
-			s[i] = m
-		}else if strings.Contains(strings.ToLower(v), "arr:"){
-			replaceStr := strings.Replace(v, "arr:", "", 1)
-			replaceStr = strings.Trim(replaceStr, "#")
-			splitStr := strings.Split(replaceStr, "#")
-			arrMap := make(map[string]string,len(splitStr))
-			for _, spV := range splitStr {
-				spspV := strings.Split(spV, "=")
-				arrMap[spspV[0]] = spspV[1]
-			}
-
-			s[i] = arrMap
-		}else {
-			s[i] = v
-		}
-	}
-
-	callErr := client.Call(fn, &ret,s...)
-
-	if callErr != nil {
-		fmt.Println("error", callErr)
-		return
-	}
-
-	if bench {
-		hey := new(hey.Hey)
-		hey.Url = url
-		hey.Method = "post"
-		hey.Num = nrun
-		hey.Con = ncon
-		hey.Body = client.PackBody
-		hey.ContentType = "application/json"
-		hey.RunHey()
-	}else {
-
-		elapsed := time.Since(t1)
-
-		if format == true {
-			is_map := FormatResutl(ret, 1)
-			if is_map == true {
-				fmt.Println("result:\r\n", buf.String())
-			}else{
-				fmt.Println("result:", buf.String())
-			}
-		} else {
-			fmt.Println("result:", ret)
-		}
-		fmt.Println("runtime: ", elapsed)
+	if args.Type == "yar" {
+		Yar(args)
+	}else{
+		Hprose(args)
 	}
 }
 
@@ -213,7 +141,7 @@ func switchTypeWrite(switchValue interface{}, i int){
 			}
 		}
 	default:
-		fmt.Println("unknown type", resultValue1)
+		fmt.Println("unknown type", resultValue)
 	}
 
 	WriteString(func() {

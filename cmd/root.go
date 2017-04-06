@@ -31,7 +31,7 @@ var args []string
 var bench bool
 var Nrun int
 var Ncon int
-
+var Type string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -48,7 +48,17 @@ trpc -u URL -f function -a param1 -a param2
 			return
 		}
 
-		rpc.DebugStart(url, fn, fm, bench, Nrun, Ncon, args)
+		args := rpc.RpcArgs{
+			Type:Type,
+			Url:url,
+			Fn:fn,
+			Format:fm,
+			Bench:bench,
+			Nrun:Nrun,
+			Ncon:Ncon,
+			Args:args,
+		}
+		rpc.DebugStart(&args)
 	},
 }
 
@@ -72,6 +82,7 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	//RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	RootCmd.Flags().StringVarP(&Type, "Type", "t", "yar", "rpc类型 yar和hprose")
 	RootCmd.Flags().StringVarP(&url, "url", "u", "", "请求地址")
 	RootCmd.Flags().StringVarP(&fn, "func", "f", "", "调用的函数")
 	RootCmd.Flags().BoolVarP(&fm, "format", "m", false, "是否格式化结果，主要针对map，便于使用者查看。")
