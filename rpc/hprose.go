@@ -17,16 +17,17 @@ func Hprose(args *RpcArgs) (interface{}, error) {
 	var in []reflect.Value
 	var unResutl interface{}
 
-	in = append(in, reflect.ValueOf("wo"))
-	var tt []reflect.Type
-	//i := make(map[string]interface{})
-	//i := 13
-	//tt = append(tt, reflect.TypeOf((*interface{})(nil)).Elem())
-	//fmt.Println(tt)
+	inputArgs := GetArgs(args.Args)
 
+
+	for _,v := range inputArgs {
+		in = append(in, reflect.ValueOf(v))
+	}
+
+	var refType []reflect.Type
 	settings := &rpc.InvokeSettings{
 		Timeout:        time.Duration(0),
-		ResultTypes: tt,
+		ResultTypes: refType,
 	}
 
 	_, err := client.Invoke(args.Fn, in, settings)

@@ -10,6 +10,8 @@ import (
 	"time"
 	"trpc/hey"
 	//"github.com/weixinhost/yar.go/client"
+	"encoding/json"
+	"strconv"
 )
 
 var buf bytes.Buffer
@@ -211,4 +213,57 @@ func switchTypeWrite(switchValue interface{}, i int){
 	WriteString(func() {
 		buf.WriteString(" ],\r\n")
 	}, i)
+}
+
+/**
+*解析传入的参数
+*@param inputArgs []string  外部传入的参数
+ */
+func GetArgs(inputArgs []string) []interface{} {
+	s := make([]interface{}, len(inputArgs))
+	for i, v := range inputArgs {
+		//解析数组
+		if strings.Contains(strings.ToLower(v), "arrfile:") {
+			tmp := strings.Split(v, ":")
+			jsonData, err := ReadJson(tmp[1])
+			if err != nil {
+				panic(err.Error())
+			}
+
+			b := []byte(jsonData)
+			var m interface{}
+			if err := json.Unmarshal(b, &m); err != nil {
+				panic(err.Error())
+			}
+			s[i] = m
+		} else if strings.Contains(strings.ToLower(v), "arr:") {
+			replaceStr := strings.Replace(v, "arr:", "", 1)
+			replaceStr = strings.Trim(replaceStr, "#")
+			splitStr := strings.Split(replaceStr, "#")
+			arrMap := make(map[string]string, len(splitStr))
+			si := 0
+			for _, spV := range splitStr {
+				if strings.Contains(spV, "=") {
+					spspV := strings.Split(spV, "=")
+					arrMap[spspV[0]] = spspV[1]
+				}else{
+					arrMap[strconv.Itoa(si)] = spV
+					si++
+				}
+			}
+			s[i] = arrMap
+		} else if strings.HasPrefix(strings.ToLower(v), "i:") {
+			tmp := strings.Split(v, ":")
+			intString, err := strconv.Atoi(tmp[1])
+			if err != nil {
+				panic(err.Error())
+			}else {
+				s[i] = intString
+			}
+		} else {
+			s[i] = v
+		}
+	}
+
+	return s
 }
