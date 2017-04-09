@@ -2,20 +2,21 @@ package rpc
 
 import (
 	"strings"
-	"fmt"
-	"trpc/hey"
-	"time"
+	//"fmt"
+	//"trpc/hey"
 	"github.com/weixinhost/yar.go/client"
 	yar "github.com/weixinhost/yar.go"
 	"encoding/json"
+	"errors"
 )
 
-func Yar(args *RpcArgs)  {
+func Yar(args *RpcArgs) (interface{}, error) {
 
 	client, err := client.NewClient(args.Url)
 
 	if err != nil {
-		fmt.Println("error", err)
+		//fmt.Println("error", err)
+		return nil, errors.New(err.String())
 	}
 
 	//这是默认值
@@ -33,8 +34,6 @@ func Yar(args *RpcArgs)  {
 
 	var ret interface{}
 
-	t1 := time.Now() // get current time
-
 	s := make([]interface{}, len(args.Args))
 	for i, v := range args.Args {
 		//解析数组
@@ -42,15 +41,15 @@ func Yar(args *RpcArgs)  {
 			tmp := strings.Split(v, ":")
 			jsonData, err := ReadJson(tmp[1])
 			if err != nil {
-				fmt.Println(err.Error())
-				return
+				//fmt.Println(err.Error())
+				return nil, err
 			}
 
 			b := []byte(jsonData)
 			var m interface{}
 			if err := json.Unmarshal(b, &m); err != nil {
-				fmt.Println(err)
-				return
+				//fmt.Println(err)
+				return nil, err
 			}
 			s[i] = m
 		} else if strings.Contains(strings.ToLower(v), "arr:") {
@@ -70,34 +69,24 @@ func Yar(args *RpcArgs)  {
 	}
 
 	callErr := client.Call(args.Fn, &ret, s...)
-
 	if callErr != nil {
-		fmt.Println("error", callErr)
-		return
+		//fmt.Println("error", callErr)
+		return nil, errors.New(callErr.String())
 	}
 
 	if args.Bench {
-		hey := new(hey.Hey)
-		hey.Url = args.Url
-		hey.Method = "post"
-		hey.Num = args.Nrun
-		hey.Con = args.Ncon
-		hey.Body = client.PackBody
-		hey.ContentType = "application/json"
-		hey.RunHey()
-	} else {
-
-		elapsed := time.Since(t1)
-		if args.Format == true {
-			is_map := FormatResutl(ret, 1)
-			if is_map == true {
-				fmt.Println("result:\r\n", buf.String())
-			} else {
-				fmt.Println("result:", buf.String())
-			}
-		} else {
-			fmt.Println("result:", ret)
-		}
-		fmt.Println("runtime: ", elapsed)
+		return string(client.PackBody), nil
+		//hey := new(hey.Hey)
+		//hey.Url = args.Url
+		//hey.Method = "post"
+		//hey.Num = args.Nrun
+		//hey.Con = args.Ncon
+		//hey.Body = client.PackBody
+		//hey.ContentType = "application/json"
+		//hey.RunHey()
 	}
+
+
+	return ret,nil
+
 }

@@ -198,7 +198,7 @@ func (client *Client) httpHandler(method string, ret interface{}, params ...inte
 	postBuffer.Write(packBody)
 
 	client.PackBody = postBuffer.String()
-
+	// 压力测试只获取 需要post的数据
 	if client.IsBenchClient {
 		return nil
 	}

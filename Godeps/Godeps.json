@@ -4,6 +4,26 @@
 	"GodepVersion": "v79",
 	"Deps": [
 		{
+			"ImportPath": "github.com/Aqiling/hprose-golang/io",
+			"Comment": "v2.0.3-10-gf4bf41a",
+			"Rev": "f4bf41aa317b64cb9d60776c50aebd30ecb2856a"
+		},
+		{
+			"ImportPath": "github.com/Aqiling/hprose-golang/rpc",
+			"Comment": "v2.0.3-10-gf4bf41a",
+			"Rev": "f4bf41aa317b64cb9d60776c50aebd30ecb2856a"
+		},
+		{
+			"ImportPath": "github.com/hprose/hprose-golang/io",
+			"Comment": "v2.0.3-9-g896a274",
+			"Rev": "896a274064cbeed12c9bdaaa259722f8fe097049"
+		},
+		{
+			"ImportPath": "github.com/hprose/hprose-golang/util",
+			"Comment": "v2.0.3-9-g896a274",
+			"Rev": "896a274064cbeed12c9bdaaa259722f8fe097049"
+		},
+		{
 			"ImportPath": "github.com/inconshreveable/mousetrap",
 			"Rev": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
 		},

@@ -1,17 +1,15 @@
 package rpc
 
 import (
-	yar "github.com/weixinhost/yar.go"
-	"github.com/weixinhost/yar.go/client"
 	"fmt"
-	"time"
 	"strings"
 	"os"
 	"io/ioutil"
-	"encoding/json"
 	"reflect"
 	"bytes"
+	"time"
 	"trpc/hey"
+	//"github.com/weixinhost/yar.go/client"
 )
 
 var buf bytes.Buffer
@@ -30,11 +28,54 @@ type RpcArgs struct {
 }
 
 func DebugStart(args *RpcArgs){
+	t1 := time.Now() // get current time
 
+	var rpcString interface{}
+	var err error
 	if args.Type == "yar" {
-		Yar(args)
+		rpcString, err = Yar(args)
+	}else if args.Type == "hprose"{
+		rpcString,err = Hprose(args)
 	}else{
-		Hprose(args)
+		fmt.Println("不存在",args.Type,"rpc服务")
+		return
+	}
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	if args.Bench {
+
+		hey := new(hey.Hey)
+		hey.Url = args.Url
+		hey.Method = "post"
+		hey.Num = args.Nrun
+		hey.Con = args.Ncon
+		hey.Body = rpcString.(string)
+		if args.Type == "yar" {
+			hey.ContentType = "application/json"
+		}else if args.Type == "hprose"{
+			hey.ContentType = "application/hprose"
+		}else{
+			hey.ContentType = "application/json"
+		}
+		hey.RunHey()
+	}else {
+		elapsed := time.Since(t1)
+		if args.Format == true {
+			is_map := FormatResutl(rpcString, 1)
+			if is_map == true {
+				fmt.Println("result:\r\n", buf.String())
+			} else {
+				fmt.Println("result:", buf.String())
+			}
+		} else {
+			fmt.Println("result:", rpcString)
+		}
+
+		fmt.Println("runtime: ", elapsed)
 	}
 }
 
@@ -47,23 +88,8 @@ func FormatResutl(result interface{}, i int) bool {
 	var is_map bool
 	reflectValue := reflect.ValueOf(result)
 	if reflectValue.Kind() == reflect.Map {
-
 		is_map = true
-
-		WriteString(func(){
-			buf.WriteString("[\n")
-		}, i)
-
 		switchTypeWrite(result, i)
-		if i == 1 {
-			WriteString(func() {
-				buf.WriteString(" ],\r\n")
-			}, i)
-		}else {
-			WriteString(func() {
-				buf.WriteString("],\r\n")
-			}, i)
-		}
 	}else if reflectValue.Kind() == reflect.Slice{
 		len := reflectValue.Len()
 		for ii := 0; ii < len; ii++ {
@@ -112,8 +138,7 @@ func switchTypeWrite(switchValue interface{}, i int){
 
 	switch resultValue := switchValue.(type){
 	case map[string]interface{}:
-		for k, vv := range resultValue{
-
+		for k, vv := range resultValue {
 			if reflect.ValueOf(vv).Kind() == reflect.Map {
 				WriteString(func(){
 					buf.WriteString(fmt.Sprintf("   '%s' => \r\n", k))
@@ -140,8 +165,47 @@ func switchTypeWrite(switchValue interface{}, i int){
 
 			}
 		}
+	case map[interface{}]interface{}:
+		for k, vv := range resultValue {
+
+			if reflect.ValueOf(vv).Kind() == reflect.Map {
+				WriteString(func(){
+					buf.WriteString(fmt.Sprintf("   '%s' => \r\n", k))
+				}, i)
+				FormatResutl(vv, i + 1)
+
+			}else if reflect.ValueOf(vv).Kind() == reflect.String {
+
+				WriteString(func(){
+					buf.WriteString(fmt.Sprintf("   '%s' => '%s',\r\n", k, vv))
+				}, i)
+
+			}else if reflect.ValueOf(vv).Kind() == reflect.Int {
+
+				WriteString(func(){
+					buf.WriteString(fmt.Sprintf("   '%s' => '%d',\r\n", k, vv))
+				}, i)
+
+			}else if reflect.ValueOf(vv).Kind() == reflect.Slice {
+				WriteString(func(){
+					buf.WriteString(fmt.Sprintf("   '%s' => \r\n", k))
+				}, i)
+				FormatResutl(vv, i + 1)
+
+			} else {
+
+				WriteString(func(){
+					buf.WriteString(fmt.Sprintf("  '%s' => %s,\r\n", k, vv))
+				}, i)
+
+			}
+		}
+	case string:
+		buf.WriteString(fmt.Sprintf("'%s'", resultValue))
+	case int:
+		buf.WriteString(fmt.Sprintf("'%d'", resultValue))
 	default:
-		fmt.Println("unknown type", resultValue)
+		fmt.Printf("Unknow Type:%+T\n", resultValue)
 	}
 
 	WriteString(func() {
