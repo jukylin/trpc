@@ -37,7 +37,7 @@ var Type string
 var RootCmd = &cobra.Command{
 	Use:   "trpc",
 	Short: "RPC 调试工具",
-	Long: `RPC 调试工具，用于调试远程RPC接口，暂只支持yar和HTTP协议
+	Long: `RPC 调试工具，用于调试远程RPC接口，暂只支持yar和Hprose，HTTP协议
 trpc -u URL -f function -a param1 -a param2
 `,
 // Uncomment the following line if your bare application
