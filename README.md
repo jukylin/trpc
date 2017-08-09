@@ -1,6 +1,6 @@
 # trpc
 
-### RPC 调试工具，用于调试远程RPC接口，暂只支持yar和HTTP协议
+### RPC 调试工具，用于调试远程RPC接口，暂只支持yar，Hprose和HTTP协议
 
 ## 安装
 
