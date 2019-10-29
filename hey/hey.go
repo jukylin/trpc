@@ -23,8 +23,11 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"math"
+	"os/signal"
 
 	"github.com/rakyll/hey/requester"
+	"time"
 )
 
 
@@ -32,6 +35,7 @@ type Hey struct{
 	Url string
 	Num int  // 请求数
 	Con int // 压力数
+	Dur time.Duration
 	Time int
 
 	ContentType string //Content-type
@@ -82,14 +86,22 @@ func (this *Hey)RunHey() {
 	//runtime.GOMAXPROCS(-1)
 	num := this.Num
 	conc := this.Con
-	q := 0
+	q := 0.00
 
-	if num <= 0 || conc <= 0 {
-		usageAndExit("-n and -c cannot be smaller than 1.")
-	}
 
-	if num < conc {
-		usageAndExit("-n cannot be less than -c.")
+	if this.Dur > 0 {
+		num = math.MaxInt32
+		if conc <= 0 {
+			usageAndExit("-c cannot be smaller than 1.")
+		}
+	} else {
+		if num <= 0 || conc <= 0 {
+			usageAndExit("-n and -c cannot be smaller than 1.")
+		}
+
+		if num < conc {
+			usageAndExit("-n cannot be less than -c.")
+		}
 	}
 
 	if this.Time == 0 {
@@ -163,7 +175,7 @@ func (this *Hey)RunHey() {
 	}
 
 	this.DisableKeepAlives = true
-	(&requester.Work{
+	w := &requester.Work{
 		Request:            req,
 		RequestBody:        bodyAll,
 		N:                  num,
@@ -176,7 +188,22 @@ func (this *Hey)RunHey() {
 		ProxyAddr:          proxyURL,
 		Output:             this.Output,
 		EnableTrace:        this.EnableTrace,
-	}).Run()
+	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		w.Stop()
+	}()
+	if this.Dur > 0 {
+		go func() {
+			time.Sleep(this.Dur)
+			w.Stop()
+		}()
+	}
+	w.Run()
+
 }
 
 func errAndExit(msg string) {

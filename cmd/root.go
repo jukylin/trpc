@@ -18,8 +18,9 @@ import (
 	"fmt"
 	"os"
 
-	"trpc/rpc"
+	"github.com/jukylin/trpc/rpc"
 	"github.com/spf13/cobra"
+	"time"
 )
 
 //var cfgFile string
@@ -31,6 +32,7 @@ var args []string
 var bench bool
 var Nrun int
 var Ncon int
+var Dur time.Duration
 var Type string
 
 // RootCmd represents the base command when called without any subcommands
@@ -56,6 +58,7 @@ trpc -u URL -f function -a param1 -a param2
 			Bench:bench,
 			Nrun:Nrun,
 			Ncon:Ncon,
+			Dur: Dur,
 			Args:args,
 		}
 		rpc.DebugStart(&args)
@@ -90,6 +93,8 @@ func init() {
 		"【https://github.com/rakyll/hey，使用go重写的ab压力测试工具】。")
 	RootCmd.Flags().IntVarP(&Nrun, "Nrun", "n", 200, "总的请求数，默认200")
 	RootCmd.Flags().IntVarP(&Ncon, "Ncon", "c", 50, "总的压力数，不能低于总的请求数，默认50")
+	RootCmd.Flags().DurationVarP(&Dur, "Dur", "z", time.Duration(10 * time.Second), "")
+
 	RootCmd.Flags().StringArrayVarP(&args, "args", "a", []string{}, "函数参数，按顺序传")
 }
 

@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"bytes"
 	"time"
-	"trpc/hey"
+	"github.com/jukylin/trpc/hey"
 	//"github.com/weixinhost/yar.go/client"
 	"encoding/json"
 	"strconv"
@@ -26,6 +26,7 @@ type RpcArgs struct {
 	Bench bool
 	Nrun int
 	Ncon int
+	Dur time.Duration
 	Args []string
 }
 
@@ -55,6 +56,8 @@ func DebugStart(args *RpcArgs){
 		hey.Method = "post"
 		hey.Num = args.Nrun
 		hey.Con = args.Ncon
+		hey.Dur = args.Dur
+
 		hey.Body = rpcString.(string)
 		if args.Type == "yar" {
 			hey.ContentType = "application/json"
